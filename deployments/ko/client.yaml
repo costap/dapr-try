@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: client-config
+  namespace: try-dapr
+data:
+  config: |-
+    listeningport: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  namespace: try-dapr
+spec:
+  selector:
+    matchLabels:
+      app: client
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: client
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "server"
+        dapr.io/port: "4000"
+    spec:
+      containers:
+      - name: client
+        # This is the import path for the Go binary to build and run.
+        image: github.com/costap/dapr-try/cmd/client
+        ports:
+        - containerPort: 8080
+        env:
+        - name: "GRPC_GO_LOG_VERBOSITY_LEVEL"
+          value: "99"
+        - name: "GRPC_GO_LOG_SEVERITY_LEVEL"
+          value: "info"
+        - name: "CONFIG_PATH"
+          value: "/etc/config"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "128Mi"
+          requests:
+            cpu: "250m"
+            memory: "64Mi"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: client-config
+          items:
+          - key: config
+            path: config.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client
+  namespace: try-dapr
+spec:
+  selector:
+    app: client
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
