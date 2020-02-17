@@ -17,6 +17,7 @@ func main() {
 	log.Println("Client started")
 
 	daprPort := os.Getenv("DAPR_GRPC_PORT")
+	log.Printf("Connecting to Dapr on port [%v]", daprPort)
 	daprAddress := fmt.Sprintf("localhost:%s", daprPort)
 	conn, err := grpc.Dial(daprAddress, grpc.WithInsecure())
 	if err != nil {
@@ -34,6 +35,7 @@ func main() {
 
 	r.HandleFunc("/", ctrl.index)
 
+	log.Println("Serving on port 8080...")
 	http.ListenAndServe(":8080", r)
 }
 
@@ -48,7 +50,7 @@ func newController(c *dapr.DaprClient) *controller {
 func (c *controller) index(w http.ResponseWriter, r *http.Request) {
 	// Invoke a method called MyMethod on another Dapr enabled service with id client
 	resp, err := c.client.InvokeService(context.Background(), &dapr.InvokeServiceEnvelope{
-		Id:     "client",
+		Id:     "server",
 		Data:   &any.Any{Value: []byte("Hello")},
 		Method: "MyMethod",
 	})

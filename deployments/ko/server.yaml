@@ -5,7 +5,7 @@ metadata:
   namespace: try-dapr
 data:
   config: |-
-    listeningport: 4000
+    listeningport: 50051
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -16,7 +16,7 @@ spec:
   selector:
     matchLabels:
       app: server
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -24,14 +24,15 @@ spec:
       annotations:
         dapr.io/enabled: "true"
         dapr.io/id: "server"
-        dapr.io/port: "4000"
+        dapr.io/protocol: "grpc"
+        dapr.io/port: "50051"
     spec:
       containers:
       - name: server
         # This is the import path for the Go binary to build and run.
         image: github.com/costap/dapr-try/cmd/server
         ports:
-        - containerPort: 4000
+        - containerPort: 50051
         env:
         - name: "GRPC_GO_LOG_VERBOSITY_LEVEL"
           value: "99"
@@ -67,5 +68,5 @@ spec:
     app: server
   ports:
     - protocol: TCP
-      port: 4000
-      targetPort: 4000
+      port: 50051
+      targetPort: 50051

@@ -16,15 +16,15 @@ spec:
   selector:
     matchLabels:
       app: client
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
         app: client
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "server"
-        dapr.io/port: "4000"
+        dapr.io/id: "client"
+        dapr.io/port: "8080"
     spec:
       containers:
       - name: client
@@ -37,6 +37,8 @@ spec:
           value: "99"
         - name: "GRPC_GO_LOG_SEVERITY_LEVEL"
           value: "info"
+        - name: "DAPR_GRPC_PORT"
+          value: "50001"
         - name: "CONFIG_PATH"
           value: "/etc/config"
         volumeMounts:
