@@ -48,11 +48,11 @@ func newController(c *dapr.DaprClient) *controller {
 }
 
 func (c *controller) index(w http.ResponseWriter, r *http.Request) {
-	// Invoke a method called MyMethod on another Dapr enabled service with id client
+	// Invoke a method called DoStuff on another Dapr enabled service with id client
 	resp, err := c.client.InvokeService(context.Background(), &dapr.InvokeServiceEnvelope{
 		Id:     "server",
 		Data:   &any.Any{Value: []byte("Hello")},
-		Method: "MyMethod",
+		Method: "DoStuff",
 	})
 
 	if err != nil {
